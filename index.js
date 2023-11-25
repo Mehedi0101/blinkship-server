@@ -34,6 +34,25 @@ async function run() {
 
 
         // users
+        // getting user by email
+        app.get('/users/:email', async (req, res) => {
+            const email = req?.params?.email;
+            const query = { email: email };
+            const result = await userCollection.findOne(query);
+            res.send(result);
+        })
+
+        // getting user type by email
+        app.get('/users/type/:email', async (req, res) => {
+            const email = req?.params?.email;
+            const query = { email: email };
+            const options = {
+                projection: { _id: 0, role: 1 },
+            };
+            const result = await userCollection.findOne(query, options);
+            res.send(result);
+        })
+
         // inserting new user
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -47,6 +66,19 @@ async function run() {
                 res.send({ insertedId: true });
             }
         })
+
+        // updating an existing user
+        app.patch('/users/:email', async (req, res) => {
+            const query = { email: req.params.email };
+            const updatedImage = {
+                $set: {
+                    image: req.body.image
+                },
+            };
+            const result = await userCollection.updateOne(query, updatedImage);
+            res.send(result);
+        })
+
 
 
 
