@@ -83,10 +83,45 @@ async function run() {
 
 
         // parcels
+        // get parcel by id
+        app.get('/parcels/id/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const result = await parcelCollection.findOne(query);
+            res.send(result);
+        })
+
+        // get parcels by email
+        app.get('/parcels/email/:email', async (req, res) => {
+            const query = { email: req.params.email };
+            const result = await parcelCollection.find(query).toArray();
+            res.send(result);
+        })
+
         // post a new parcel
         app.post('/parcels', async (req, res) => {
             const parcel = req.body;
             const result = await parcelCollection.insertOne(parcel);
+            res.send(result);
+        })
+
+        // update a parcel
+        app.patch('/parcels/update/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const updatedParcel = {
+                $set: {
+                    senderPhone: req.body.senderPhone,
+                    parcelType: req.body.parcelType,
+                    weight: req.body.weight,
+                    receiver: req.body.receiver,
+                    receiverPhone: req.body.receiverPhone,
+                    deliveryAddress: req.body.deliveryAddress,
+                    requestedDate: req.body.requestedDate,
+                    longitude: req.body.longitude,
+                    latitude: req.body.latitude,
+                    price: req.body.price
+                },
+            };
+            const result = await parcelCollection.updateOne(query, updatedParcel);
             res.send(result);
         })
 
