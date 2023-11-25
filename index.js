@@ -90,7 +90,7 @@ async function run() {
             res.send(result);
         })
 
-        // get parcels by email
+        // get parcel by email
         app.get('/parcels/email/:email', async (req, res) => {
             const query = { email: req.params.email };
             const result = await parcelCollection.find(query).toArray();
@@ -122,6 +122,13 @@ async function run() {
                 },
             };
             const result = await parcelCollection.updateOne(query, updatedParcel);
+            res.send(result);
+        })
+
+        // delete a parcel
+        app.delete('/parcels/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const result = await parcelCollection.deleteOne(query);
             res.send(result);
         })
 
