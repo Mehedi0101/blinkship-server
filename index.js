@@ -23,6 +23,7 @@ async function run() {
     try {
         // collections
         const userCollection = client.db("BlinkShip").collection("users");
+        const parcelCollection = client.db("BlinkShip").collection("parcels");
 
 
 
@@ -76,6 +77,16 @@ async function run() {
                 },
             };
             const result = await userCollection.updateOne(query, updatedImage);
+            res.send(result);
+        })
+
+
+
+        // parcels
+        // post a new parcel
+        app.post('/parcels', async (req, res) => {
+            const parcel = req.body;
+            const result = await parcelCollection.insertOne(parcel);
             res.send(result);
         })
 
