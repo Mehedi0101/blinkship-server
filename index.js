@@ -5,7 +5,10 @@ require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+    origin: ['https://blink-ship-be2ab.web.app', 'https://console.firebase.google.com/project/blink-ship-be2ab/overview'],
+    credentials: true
+}));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.gxsfvvy.mongodb.net/?retryWrites=true&w=majority`;
@@ -275,10 +278,32 @@ async function run() {
             res.send({ count });
         })
 
+        // top 5 deliverymen
+        app.get('/topDeliverymen', async (req, res) => {
+            const query = { role: 'deliveryMen' };
+            const options = {
+                sort: { parcelCount: -1, review: -1 },
+            };
+            const result = (await userCollection.find(query, options).toArray()).slice(0, 5);
+            res.send(result);
+        })
+
+        // get stats for order by date
+        app.get('/adminStats', async (req, res) => {
+            const result = await parcelCollection.aggregate([
+                {
+                    $group: {
+                        _id: '$bookingDate',
+                        bookings: {
+                            $sum: 1
+                        }
+                    }
+                }
+            ]).toArray();
+            res.send(result);
+        })
 
 
-
-        await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
 
