@@ -24,6 +24,7 @@ async function run() {
         // collections
         const userCollection = client.db("BlinkShip").collection("users");
         const parcelCollection = client.db("BlinkShip").collection("parcels");
+        const reviewCollection = client.db("BlinkShip").collection("reviews");
 
 
 
@@ -105,6 +106,22 @@ async function run() {
             res.send(result);
         })
 
+        // update a deliveryman after giving user rating
+        app.patch('/users/review/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const previousState = await userCollection.findOne(query);
+            console.log('previousState');
+            const avgRating = (previousState.parcelCount * previousState.review + req.body.rating) / (previousState.parcelCount + 1);
+            const updatedState = {
+                $set: {
+                    parcelCount: Number(previousState.parcelCount + 1),
+                    review: avgRating
+                }
+            }
+            const result = await userCollection.updateOne(query, updatedState);
+            res.send(result);
+        })
+
 
 
         // parcels
@@ -163,6 +180,18 @@ async function run() {
             res.send(result);
         })
 
+        // update a parcel's rating by a user
+        app.patch('/parcels/rating/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const updatedParcel = {
+                $set: {
+                    rating: req.body.rating
+                },
+            };
+            const result = await parcelCollection.updateOne(query, updatedParcel);
+            res.send(result);
+        })
+
         // update a parcel by admin
         app.patch('/parcels/admin/update/:id', async (req, res) => {
             const query = { _id: new ObjectId(req.params.id) };
@@ -198,6 +227,22 @@ async function run() {
         app.delete('/parcels/:id', async (req, res) => {
             const query = { _id: new ObjectId(req.params.id) };
             const result = await parcelCollection.deleteOne(query);
+            res.send(result);
+        })
+
+
+
+        // reviews
+        // get all review
+        app.get('/reviews', async (req, res) => {
+            const result = await reviewCollection.find().toArray();
+            res.send(result);
+        })
+
+        // post a review
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
             res.send(result);
         })
 
