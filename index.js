@@ -35,6 +35,19 @@ async function run() {
 
 
         // users
+        // getting all users
+        app.get('/users', async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        })
+
+        // getting all deliverymen
+        app.get('/users/deliverymen', async (req, res) => {
+            const query = { role: 'deliveryMen' };
+            const result = await userCollection.find(query).toArray();
+            res.send(result);
+        })
+
         // getting user by email
         app.get('/users/:email', async (req, res) => {
             const email = req?.params?.email;
@@ -80,9 +93,27 @@ async function run() {
             res.send(result);
         })
 
+        // updating a user role by admin
+        app.patch('/users/admin/update/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const updatedRole = {
+                $set: {
+                    role: req.body.role
+                }
+            }
+            const result = await userCollection.updateOne(query, updatedRole);
+            res.send(result);
+        })
+
 
 
         // parcels
+        // get all parcels
+        app.get('/parcels', async (req, res) => {
+            const result = await parcelCollection.find().toArray();
+            res.send(result);
+        })
+
         // get parcel by id
         app.get('/parcels/id/:id', async (req, res) => {
             const query = { _id: new ObjectId(req.params.id) };
@@ -121,6 +152,25 @@ async function run() {
                     price: req.body.price
                 },
             };
+            const result = await parcelCollection.updateOne(query, updatedParcel);
+            res.send(result);
+        })
+
+        // update a parcel by admin
+        app.patch('/parcels/admin/update/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            console.log(req.body.deliveryManId,
+                req.body.approximateDate,
+                req.body.status);
+
+            const updatedParcel = {
+                $set: {
+                    deliveryManId: req.body.deliveryManId,
+                    approximateDate: req.body.approximateDate,
+                    status: req.body.status
+                }
+            }
+
             const result = await parcelCollection.updateOne(query, updatedParcel);
             res.send(result);
         })
