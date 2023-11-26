@@ -128,6 +128,13 @@ async function run() {
             res.send(result);
         })
 
+        // get parcels by deliveryman
+        app.get('/parcels/deliveryman/:id', async (req, res) => {
+            const query = { deliveryManId: req.params.id, status: 'on the way' };
+            const result = await parcelCollection.find(query).toArray();
+            res.send(result);
+        })
+
         // post a new parcel
         app.post('/parcels', async (req, res) => {
             const parcel = req.body;
@@ -171,6 +178,18 @@ async function run() {
                 }
             }
 
+            const result = await parcelCollection.updateOne(query, updatedParcel);
+            res.send(result);
+        })
+
+        // update a parcel status by deliveryman
+        app.patch('/parcels/deliveryman/update/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const updatedParcel = {
+                $set: {
+                    status: req.body.status
+                }
+            }
             const result = await parcelCollection.updateOne(query, updatedParcel);
             res.send(result);
         })
