@@ -239,11 +239,40 @@ async function run() {
             res.send(result);
         })
 
+        // get reviews by delivery man id
+        app.get('/reviews/deliveryman/:id', async (req, res) => {
+            const query = { deliveryManId: req.params.id };
+            const result = await reviewCollection.find(query).toArray();
+            res.send(result);
+        })
+
         // post a review
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             res.send(result);
+        })
+
+
+
+        // statistics
+        // total number of parcel booked
+        app.get('/parcelCount', async (req, res) => {
+            const count = await parcelCollection.estimatedDocumentCount();
+            res.send({ count });
+        })
+
+        // total number of parcel delivered
+        app.get('/deliveryCount', async (req, res) => {
+            const query = { status: 'delivered' };
+            const count = (await parcelCollection.find(query).toArray()).length;
+            res.send({ count });
+        })
+
+        // total number of users
+        app.get('/userCount', async (req, res) => {
+            const count = await userCollection.estimatedDocumentCount();
+            res.send({ count });
         })
 
 
