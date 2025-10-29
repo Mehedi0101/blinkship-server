@@ -6,12 +6,12 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: ['https://blink-ship-be2ab.web.app', 'https://console.firebase.google.com/project/blink-ship-be2ab/overview'],
+    origin: ['https://blink-ship-01.web.app', 'https://console.firebase.google.com/u/0/project/blink-ship-01/overview', 'http://localhost:5173'],
     credentials: true
 }));
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.gxsfvvy.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@mycluster.blpor7q.mongodb.net/?appName=MyCluster`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -113,7 +113,6 @@ async function run() {
         app.patch('/users/review/:id', async (req, res) => {
             const query = { _id: new ObjectId(req.params.id) };
             const previousState = await userCollection.findOne(query);
-            console.log('previousState');
             const avgRating = (previousState.parcelCount * previousState.review + req.body.rating) / (previousState.parcelCount + 1);
             const updatedState = {
                 $set: {
@@ -198,9 +197,6 @@ async function run() {
         // update a parcel by admin
         app.patch('/parcels/admin/update/:id', async (req, res) => {
             const query = { _id: new ObjectId(req.params.id) };
-            console.log(req.body.deliveryManId,
-                req.body.approximateDate,
-                req.body.status);
 
             const updatedParcel = {
                 $set: {
